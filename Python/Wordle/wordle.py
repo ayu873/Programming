@@ -1,3 +1,5 @@
+#This is a Python implementation of the popular Wordle game
+
 from nltk.corpus import wordnet
 import tkinter as tk
 import random
@@ -21,7 +23,7 @@ def displayMainWindow(frame):
     playButton.pack()
     shopButton.pack()
     helpButton.pack()
-    quitButton.pack()    
+    quitButton.pack()  
     frame.pack(expand=True, fill='both')
 
 def checkEntries(entries, frame, entry):
