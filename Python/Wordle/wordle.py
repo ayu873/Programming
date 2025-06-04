@@ -1,5 +1,3 @@
-#This is a Python implementation of the popular Wordle game
-
 from nltk.corpus import wordnet
 import tkinter as tk
 import random
@@ -78,11 +76,13 @@ def checkEntries(entries, frame, entry):
         usedUpGuessesWindow.geometry("+%d+%d" % (window.winfo_rootx() + 50, window.winfo_rooty() + 50))
         ohNoLabel = tk.Label(usedUpGuessesWindow, text='Oh No!')
         usedUpGuessesLabel = tk.Label(usedUpGuessesWindow, text='You have used up all your guesses!')
+        wordLabel = tk.Label(usedUpGuessesWindow, text=f'The word was {randomWord}')
         wouldYouLikeToPlayAgainLabel = tk.Label(usedUpGuessesWindow, text='Would you like to play again?')
         yesButton = tk.Button(usedUpGuessesWindow, text='Yes', command=lambda: [displayDifficulties(frame), usedUpGuessesWindow.destroy])
         noButton = tk.Button(usedUpGuessesWindow, text='No', command=window.destroy)
         ohNoLabel.pack()
         usedUpGuessesLabel.pack()
+        wordLabel.pack()
         wouldYouLikeToPlayAgainLabel.pack()
         yesButton.pack(side='left')
         noButton.pack(side='left')
@@ -104,25 +104,27 @@ def countDownTheTimer(labelForTimer, timer, frame):
         secondsRemaining = timer % 60
         labelForTimer.config(text=f'Time Left: {minutesRemaining:01d}:{secondsRemaining:02d}')
         timer -= 1
-        window.after(50, lambda: countDownTheTimer(labelForTimer, timer, frame))
+        window.after(1000, lambda: countDownTheTimer(labelForTimer, timer, frame))
     else:
         timeIsUpWindow = tk.Toplevel(window)
         timeIsUpWindow.title("Time's Up")
         timeIsUpWindow.geometry("+%d+%d" % (window.winfo_rootx() + 50, window.winfo_rooty() + 50))
         timeIsUpLabel = tk.Label(timeIsUpWindow, text="Time's up!")
+        wordLabel = tk.Label(timeIsUpWindow, text=f'The word was {randomWord}')
         playAgainLabel = tk.Label(timeIsUpWindow, text='Would you like to play again?')
-        yesButton = tk.Button(timeIsUpWindow, text='Yes', command=lambda: [timeIsUpWindow.destroy, displayDifficulties(frame)])
+        yesButton = tk.Button(timeIsUpWindow, text='Yes', command=lambda: [timeIsUpWindow.destroy(), displayDifficulties(frame)])
         noButton = tk.Button(timeIsUpWindow, text='No', command=window.destroy)
         timeIsUpLabel.pack()
+        wordLabel.pack()
         playAgainLabel.pack()
         yesButton.pack(side='left')
         noButton.pack(side='left')
 
 def createTimer(frame, level):
     if level == 'Easy':
-        timer = 90
-    elif level == 'Medium':
         timer = 60
+    elif level == 'Medium':
+        timer = 45
     elif level == 'Hard':
         timer = 30
     timerLabel = tk.Label(frame, text=f'Time Left: {timer} seconds')
@@ -163,6 +165,7 @@ def revealVowel():
     return
         
 def revealLettersThatRepeat():
+    global hintsRemaining
     repeatedLetterWindow = tk.Toplevel(window)
     repeatedLetterWindow.geometry("+%d+%d" % (window.winfo_rootx() + 50, window.winfo_rooty() + 50))
     repeatedLetterHintLabel = tk.Label(repeatedLetterWindow, text='Repeated Letter Hint')
@@ -184,6 +187,7 @@ def displayHints(difficulty_level):
     hintWindow = tk.Toplevel(window)
     hintWindow.geometry("+%d+%d" % (window.winfo_rootx() + 50, window.winfo_rooty() + 50))
     randomHints = [revealConsonant, revealVowel, revealLettersThatRepeat]
+    global hintsRemaining
     if difficulty_level == 'Easy':
         hintsRemaining = 3
     elif difficulty_level == 'Medium':
@@ -391,10 +395,13 @@ def displayInstructions(frame):
     quitButton.pack(in_=frame)
     frame.pack()
 
-words = ['hello', 'root', 'website', 'hotel', 'list', 'assassin', 'file', 'nonchalant', 'jealous', 'chat', 'contact', 'mail', 
-        'view', 'ball', 'lock', 'bowl', 'browser', 'calendar', 'time', 'event', 'method', 'application', 'close', 'college',
-        ]
-randomWord = random.choice(words)
+wordList = []
+
+for word in wordnet.words():
+    if word.isalpha():
+        wordList.append(word.lower())
+
+randomWord = random.choice(wordList)
 window = tk.Tk()
 window.geometry('500x500')
 window.title('Wordle')
