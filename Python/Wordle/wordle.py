@@ -55,19 +55,23 @@ def checkEntries(entries, frame, entry):
     currentGuess += 1
     joinedGuessedWord = ''.join(listOfGuessedWord)
     if joinedGuessedWord == randomWord:
+        global guesses
+        guesses = currentGuess
         guessWindow = tk.Toplevel(window)
         guessWindow.title('You Guessed It')
         guessWindow.geometry("+%d+%d" % (window.winfo_rootx() + 50, window.winfo_rooty() + 50))
         greatJobLabel = tk.Label(guessWindow, text='Great Job!')
         guessWordLabel = tk.Label(guessWindow, text=f'You guessed the word in {currentGuess} tries')
         wouldYouLikeToPlayAgainLabel = tk.Label(guessWindow, text='Would you like to play again?')
-        yesButton = tk.Button(guessWindow, text='Yes', command=lambda: [displayDifficulties(frame), guessWindow.destroy])
+        yesButton = tk.Button(guessWindow, text='Yes', command=lambda: [guessWindow.destroy(), displayDifficulties(frame)])
         noButton = tk.Button(guessWindow, text='No', command=window.destroy)
         greatJobLabel.pack()
         guessWordLabel.pack()
         wouldYouLikeToPlayAgainLabel.pack()
         yesButton.pack(side='left')
         noButton.pack(side='left')
+        return
+    
     if currentGuess < guesses:
         window.after(1000, lambda: displayEntries(frameForWindow, currentDifficulty))
     elif currentGuess == guesses:
@@ -78,7 +82,7 @@ def checkEntries(entries, frame, entry):
         usedUpGuessesLabel = tk.Label(usedUpGuessesWindow, text='You have used up all your guesses!')
         wordLabel = tk.Label(usedUpGuessesWindow, text=f'The word was {randomWord}')
         wouldYouLikeToPlayAgainLabel = tk.Label(usedUpGuessesWindow, text='Would you like to play again?')
-        yesButton = tk.Button(usedUpGuessesWindow, text='Yes', command=lambda: [displayDifficulties(frame), usedUpGuessesWindow.destroy])
+        yesButton = tk.Button(usedUpGuessesWindow, text='Yes', command=lambda: [usedUpGuessesWindow.destroy(), displayDifficulties(frame)])
         noButton = tk.Button(usedUpGuessesWindow, text='No', command=window.destroy)
         ohNoLabel.pack()
         usedUpGuessesLabel.pack()
@@ -99,13 +103,13 @@ def displayRememberToPressEnterWindow():
     rememberToPressEnterWindow.after(2000, rememberToPressEnterWindow.destroy)
 
 def countDownTheTimer(labelForTimer, timer, frame):
-    if timer > 0:
+    if timer > 0 and currentGuess < guesses:
         minutesRemaining = timer // 60
         secondsRemaining = timer % 60
         labelForTimer.config(text=f'Time Left: {minutesRemaining:01d}:{secondsRemaining:02d}')
         timer -= 1
         window.after(1000, lambda: countDownTheTimer(labelForTimer, timer, frame))
-    else:
+    elif timer <= 0 and currentGuess < guesses:
         timeIsUpWindow = tk.Toplevel(window)
         timeIsUpWindow.title("Time's Up")
         timeIsUpWindow.geometry("+%d+%d" % (window.winfo_rootx() + 50, window.winfo_rooty() + 50))
@@ -207,7 +211,7 @@ def displayHintButton(frame, difficultyLevel):
     hintsButton = tk.Button(frame, text='Hints', width=6, command=lambda: displayHints(difficultyLevel))
     hintsButton.place(relx=1, rely=0, anchor='ne', x=-5, y=51)
     
-def displayEntries(frame, levelOfDifficulty): 
+def displayEntries(frame): 
     entryFrame = tk.Frame(frame)
     listOfEntries = []
     for i in range(len(randomWord)):
@@ -269,6 +273,8 @@ def displayDifficulties(frame):
     coinsLabel = tk.Label(frame, text=f'{coins} coins')
     hintsLabel = tk.Label(frame, text=f'{hints} hints')
     userSelectedOption = tk.StringVar(value=' ')
+    global randomWord
+    randomWord = random.choice(wordList)
     chooseDifficultyLabel = tk.Label(frame, text='Choose your difficulty level:')
     easyOption = tk.Radiobutton(frame, text='Easy', variable=userSelectedOption, value='Easy', selectcolor="white")
     mediumOption = tk.Radiobutton(frame, text='Medium', variable=userSelectedOption, value='Medium', selectcolor="white")
@@ -398,10 +404,12 @@ def displayInstructions(frame):
 wordList = []
 
 for word in wordnet.words():
-    if word.isalpha():
-        wordList.append(word.lower())
+    if 3 <= len(word) <= 7 and word.isalpha():
+        synsetsOfWords = wordnet.synsets(word)
+        if synsetsOfWords:
+            wordList.append(word.lower())
 
-randomWord = random.choice(wordList)
+randomWord = None
 window = tk.Tk()
 window.geometry('500x500')
 window.title('Wordle')
