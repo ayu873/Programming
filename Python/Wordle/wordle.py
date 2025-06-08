@@ -1,4 +1,6 @@
-from nltk.corpus import wordnet
+import nltk
+from nltk.corpus import brown
+from nltk.corpus import words
 import tkinter as tk
 import random
 
@@ -37,23 +39,10 @@ def checkEntries(entries, frame, entry):
             i.config(bg='yellow')
         else:
             i.config(bg='gray')
-        if len(letter) != 1 or not letter.isalpha():
-            errorWindow = tk.Toplevel(window)
-            errorWindow.title('Error Message')
-            warningLabel = tk.Label(errorWindow, text='Warning:')
-            oneLetterOnlyLabel = tk.Label(errorWindow, text='One of your entries contains more than one letter or is empty')
-            tryAgainLabel = tk.Label(errorWindow, text='Please try again')
-            warningLabel.pack()
-            oneLetterOnlyLabel.pack()
-            tryAgainLabel.pack()
-            errorWindow.after(2000, errorWindow.destroy)
-            for entry in entries:
-                entry.delete(0, tk.END)
-                entry.config(bg='white')
-            return
         indexOfRandomWord += 1
     currentGuess += 1
     joinedGuessedWord = ''.join(listOfGuessedWord)
+    
     if joinedGuessedWord == randomWord:
         global guesses
         guesses = currentGuess
@@ -73,7 +62,7 @@ def checkEntries(entries, frame, entry):
         return
     
     if currentGuess < guesses:
-        window.after(1000, lambda: displayEntries(frameForWindow, currentDifficulty))
+        window.after(1000, lambda: displayEntries(frameForWindow))
     elif currentGuess == guesses:
         usedUpGuessesWindow = tk.Toplevel(window)
         usedUpGuessesWindow.title('You Used Up All Your Guesses')
@@ -211,6 +200,18 @@ def displayHintButton(frame, difficultyLevel):
     hintsButton = tk.Button(frame, text='Hints', width=6, command=lambda: displayHints(difficultyLevel))
     hintsButton.place(relx=1, rely=0, anchor='ne', x=-5, y=51)
     
+def moveToNextEntry(event, entries):
+    if not event.char.isalpha():
+        return 'break'
+    currentEntry = event.widget
+    currentIndex = entries.index(currentEntry)
+    currentEntry.delete(0, tk.END)
+    currentEntry.insert(0, event.char.lower())
+    if currentIndex < len(entries) - 1:
+        nextEntry = entries[currentIndex + 1]
+        nextEntry.focus()
+    return 'break'
+
 def displayEntries(frame): 
     entryFrame = tk.Frame(frame)
     listOfEntries = []
@@ -218,8 +219,12 @@ def displayEntries(frame):
         entry = tk.Entry(entryFrame, width=2, justify='center')
         entry.pack(side='left', padx=5, pady=5)
         listOfEntries.append(entry)
-        entry.bind('<Return>', lambda event: checkEntries(listOfEntries, frame, entry))
-        entryFrame.pack()
+    for i in range(len(listOfEntries)):
+        nextEntry = listOfEntries[i + 1] if i < len(listOfEntries) - 1 else None
+        listOfEntries[i].bind('<KeyPress>', lambda event, next_entry=nextEntry: moveToNextEntry(event, listOfEntries))
+        listOfEntries[i].bind('<Return>', lambda event: checkEntries(listOfEntries, frame, entry))
+    listOfEntries[0].focus()
+    entryFrame.pack()
     frame.pack(expand=True, fill='both')
 
 def operateGame(frame, level_of_difficulty):
@@ -241,10 +246,9 @@ def operateGame(frame, level_of_difficulty):
     coinsLabel.place(relx=1, rely=0, anchor='ne', x=-5, y=0)
     hintsLabel.place(relx=1, rely=0, anchor='ne', x=-5, y=17)
     window.after(2000, lambda: [createTimer(frame, level_of_difficulty), displayHintButton(frame, level_of_difficulty)])
-    displayEntries(frame, level_of_difficulty)
+    displayEntries(frame)
     
 def confirmDifficulty(difficulty):
-    print(len(randomWord))
     frameForWindow.pack_forget()
     for widget in frameForWindow.winfo_children():
         widget.destroy()
@@ -275,6 +279,7 @@ def displayDifficulties(frame):
     userSelectedOption = tk.StringVar(value=' ')
     global randomWord
     randomWord = random.choice(wordList)
+    print(randomWord)
     chooseDifficultyLabel = tk.Label(frame, text='Choose your difficulty level:')
     easyOption = tk.Radiobutton(frame, text='Easy', variable=userSelectedOption, value='Easy', selectcolor="white")
     mediumOption = tk.Radiobutton(frame, text='Medium', variable=userSelectedOption, value='Medium', selectcolor="white")
@@ -402,18 +407,16 @@ def displayInstructions(frame):
     frame.pack()
 
 wordList = []
-
-for word in wordnet.words():
+wordFrequency = nltk.FreqDist(brown.words())
+for word in words.words():
     if 3 <= len(word) <= 7 and word.isalpha():
-        synsetsOfWords = wordnet.synsets(word)
-        if synsetsOfWords:
+        if word.lower() in wordFrequency and wordFrequency[word.lower()] > 10:
             wordList.append(word.lower())
 
 randomWord = None
 window = tk.Tk()
 window.geometry('500x500')
 window.title('Wordle')
-print(randomWord)
 frameForWindow = tk.Frame(master=window)
 coins = 1000
 hints = 0
