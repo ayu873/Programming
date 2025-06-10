@@ -8,14 +8,14 @@ def displayMainWindow(frame):
     frame.pack_forget()
     for widget in frame.winfo_children():
         widget.destroy()
-    welcomeLabel = tk.Label(frame, text='Welcome To Wordle!')
-    coinsLabel = tk.Label(frame, text=f'{coins} coins')
-    hintsLabel = tk.Label(frame, text=f'{hints} hints')
-    startLabel = tk.Label(frame, text='Click on any option below to get started! :)')
-    playButton = tk.Button(frame, text='Play!', width=5, command=lambda: displayDifficulties(frame))
-    shopButton = tk.Button(frame, text='Shop', width=5, command=lambda: operateShop(frame))
-    helpButton = tk.Button(frame, text='Help', width=5, command=lambda: displayInstructions(frame))
-    quitButton = tk.Button(frame, text='Quit', width=5, command=window.destroy)
+    welcomeLabel = tk.Label(frame, text='Welcome To Wordle!', font=titleFont)
+    coinsLabel = tk.Label(frame, text=f'{coins} coins', font=statusFont)
+    hintsLabel = tk.Label(frame, text=f'{hints} hints', font=statusFont)
+    startLabel = tk.Label(frame, text='Click on any option below to get started! :)', font=buttonFont)
+    playButton = tk.Button(frame, text='Play!', width=5, command=lambda: displayDifficulties(frame), font=buttonFont)
+    shopButton = tk.Button(frame, text='Shop', width=5, command=lambda: operateShop(frame), font=buttonFont)
+    helpButton = tk.Button(frame, text='Help', width=5, command=lambda: displayInstructions(frame), font=buttonFont)
+    quitButton = tk.Button(frame, text='Quit', width=5, command=window.destroy, font=buttonFont)
     coinsLabel.place(relx=1, rely=0, anchor='ne', x=-5, y=0)
     hintsLabel.place(relx=1, rely=0, anchor='ne', x=-5, y=17)
     welcomeLabel.pack(pady=(35, 0))
@@ -26,7 +26,7 @@ def displayMainWindow(frame):
     quitButton.pack()  
     frame.pack(expand=True, fill='both')
 
-def checkEntries(entries, frame, entry):
+def checkEntries(entries, frame):
     global currentGuess
     indexOfRandomWord = 0
     listOfGuessedWord = []
@@ -42,7 +42,7 @@ def checkEntries(entries, frame, entry):
         indexOfRandomWord += 1
     currentGuess += 1
     joinedGuessedWord = ''.join(listOfGuessedWord)
-    
+
     if joinedGuessedWord == randomWord:
         global guesses
         guesses = currentGuess
@@ -79,17 +79,6 @@ def checkEntries(entries, frame, entry):
         wouldYouLikeToPlayAgainLabel.pack()
         yesButton.pack(side='left')
         noButton.pack(side='left')
-        
-        
-
-
-def displayRememberToPressEnterWindow():
-    rememberToPressEnterWindow = tk.Toplevel(window)
-    rememberToPressEnterWindow.title('Press Enter')
-    rememberToPressEnterLabel = tk.Label(rememberToPressEnterWindow, text='Remember to press ENTER after you have filled in ALL of the entries')
-    rememberToPressEnterLabel.pack()
-    rememberToPressEnterWindow.geometry("+%d+%d" % (window.winfo_rootx() + 50, window.winfo_rooty() + 50))
-    rememberToPressEnterWindow.after(2000, rememberToPressEnterWindow.destroy)
 
 def countDownTheTimer(labelForTimer, timer, frame):
     if timer > 0 and currentGuess < guesses:
@@ -200,14 +189,16 @@ def displayHintButton(frame, difficultyLevel):
     hintsButton = tk.Button(frame, text='Hints', width=6, command=lambda: displayHints(difficultyLevel))
     hintsButton.place(relx=1, rely=0, anchor='ne', x=-5, y=51)
     
-def moveToNextEntry(event, entries):
+def moveToNextEntry(event, entries, frame):
     if not event.char.isalpha():
         return 'break'
     currentEntry = event.widget
     currentIndex = entries.index(currentEntry)
     currentEntry.delete(0, tk.END)
     currentEntry.insert(0, event.char.lower())
-    if currentIndex < len(entries) - 1:
+    if currentIndex == len(entries) - 1:
+        checkEntries(entries, frame)
+    else:
         nextEntry = entries[currentIndex + 1]
         nextEntry.focus()
     return 'break'
@@ -220,9 +211,7 @@ def displayEntries(frame):
         entry.pack(side='left', padx=5, pady=5)
         listOfEntries.append(entry)
     for i in range(len(listOfEntries)):
-        nextEntry = listOfEntries[i + 1] if i < len(listOfEntries) - 1 else None
-        listOfEntries[i].bind('<KeyPress>', lambda event, next_entry=nextEntry: moveToNextEntry(event, listOfEntries))
-        listOfEntries[i].bind('<Return>', lambda event: checkEntries(listOfEntries, frame, entry))
+        listOfEntries[i].bind('<KeyPress>', lambda event, entries=listOfEntries, frame=frame: moveToNextEntry(event, entries, frame))
     listOfEntries[0].focus()
     entryFrame.pack()
     frame.pack(expand=True, fill='both')
@@ -231,13 +220,12 @@ def operateGame(frame, level_of_difficulty):
     global currentGuess, guesses, currentDifficulty
     currentGuess = 0
     currentDifficulty = level_of_difficulty
-    if level_of_difficulty == 'Easy':
+    if currentDifficulty == 'Easy':
         guesses = 5
-    elif level_of_difficulty == 'Medium':
+    elif currentDifficulty == 'Medium':
         guesses = 4
-    elif level_of_difficulty == 'Hard':
+    elif currentDifficulty == 'Hard':
         guesses = 3
-    displayRememberToPressEnterWindow()
     frame.pack_forget()
     for widget in frame.winfo_children():
         widget.destroy()
@@ -245,7 +233,8 @@ def operateGame(frame, level_of_difficulty):
     hintsLabel = tk.Label(frame, text=f'{hints} hints')
     coinsLabel.place(relx=1, rely=0, anchor='ne', x=-5, y=0)
     hintsLabel.place(relx=1, rely=0, anchor='ne', x=-5, y=17)
-    window.after(2000, lambda: [createTimer(frame, level_of_difficulty), displayHintButton(frame, level_of_difficulty)])
+    createTimer(frame, level_of_difficulty)
+    displayHintButton(frame, level_of_difficulty)
     displayEntries(frame)
     
 def confirmDifficulty(difficulty):
@@ -264,10 +253,10 @@ def confirmDifficulty(difficulty):
     backButton.pack()
     frameForWindow.pack(expand=True, fill='both')
     
-def getUserInput():
+def getUserInput(frame):
     global userSelectedOption
     selectedDifficulty = userSelectedOption.get()
-    confirmDifficulty(selectedDifficulty)
+    operateGame(frame, selectedDifficulty)
 
 def displayDifficulties(frame):
     global userSelectedOption
@@ -284,7 +273,7 @@ def displayDifficulties(frame):
     easyOption = tk.Radiobutton(frame, text='Easy', variable=userSelectedOption, value='Easy', selectcolor="white")
     mediumOption = tk.Radiobutton(frame, text='Medium', variable=userSelectedOption, value='Medium', selectcolor="white")
     hardOption = tk.Radiobutton(frame, text='Hard', variable=userSelectedOption, value='Hard', selectcolor="white")
-    okButton = tk.Button(frame, text='OK', width=5, command=getUserInput)
+    okButton = tk.Button(frame, text='OK', width=5, command=lambda: getUserInput(frame))
     backButton = tk.Button(frame, text='Back', width=5, command=lambda: displayMainWindow(frame))          
     quitButton = tk.Button(frame, text='Quit', width=5, command=window.destroy)
     coinsLabel.place(relx=1, rely=0, anchor='ne', x=-5, y=0)
@@ -372,39 +361,31 @@ def displayInstructions(frame):
     frame.pack_forget()
     for widget in frame.winfo_children():
         widget.destroy()
-    coinsLabel = tk.Label(frame, text=f'{coins} coins')
-    hintsLabel = tk.Label(frame, text=f'{hints} hints')
-    guessLabel = tk.Label(frame, text='Try to guess the word in 5 tries')
-    validLabel = tk.Label(frame, text='Each entry MUST contain a letter')
-    greenImage = tk.PhotoImage(file=r"c:\Users\ayaaz\Downloads\green.png")
-    greenImage = greenImage.subsample(30, 30)
-    greenLabel = tk.Label(frame, image=greenImage, text=' = If one of your entries are green, that means ' \
-    'the letter is in the word and in the right spot', compound='left')
-    greenLabel.image = greenImage
-    yellowImage = tk.PhotoImage(file=r"c:\Users\ayaaz\Downloads\yellow.png")
-    yellowImage = yellowImage.subsample(20, 20)
-    yellowLabel = tk.Label(frame, image=yellowImage, text=' = If one of your entries are yellow, that means ' \
-    'the letter is in the word but in the wrong spot', compound='left')
-    yellowLabel.image = yellowImage
-    grayImage = tk.PhotoImage(file=r"c:\Users\ayaaz\Downloads\gray.png")
-    grayImage = grayImage.subsample(20, 20)
-    grayLabel = tk.Label(frame, image=grayImage, text=' = If one of your entries are gray, that means ' \
-    'the letter is not in the word at all', compound='left')
-    pressEnterLabel = tk.Label(frame, text="Don't forget to press ENTER after you have filled in ALL of the entries")
-    grayLabel.image = grayImage
-    backButton = tk.Button(frame, text='Back', width=5, command=lambda: displayMainWindow(frame))
-    quitButton = tk.Button(frame, text='Quit', width=5, command=window.destroy)
+    titleLabel = tk.Label(frame, text='How To Play', font=titleFont)
+    coinsLabel = tk.Label(frame, text=f'{coins} coins', font=statusFont)
+    hintsLabel = tk.Label(frame, text=f'{hints} hints', font=statusFont)
+    guessLabel = tk.Label(frame, text='• Try to guess the word in 3, 4, or 5 tries', font=informationFont)
+    validLabel = tk.Label(frame, text='• Each entry MUST contain a letter', font=informationFont)
+    useHintsLabel = tk.Label(frame, text="• Use hints if you'd like to help you guess the word", font=informationFont)
+    timerCountsDownLabel = tk.Label(frame, text='• The timer counts down while you play', font=informationFont)
+    colorGuideLabel = tk.Label(frame, text='Color Guide:', font=informationFont)
+    greenLabel = tk.Label(frame, text='🟩 Green - the letter is in the correct spot', font=informationFont, fg='#538d4e')
+    yellowLabel = tk.Label(frame, text='🟨 Yellow - the letter is in the word but in the wrong spot', font=informationFont, fg="#f7d94f")
+    grayLabel = tk.Label(frame, text='⬜ Gray - the letter is not in the word', font=informationFont, fg='#3a3a3c')
+    backButton = tk.Button(frame, text='Back', width=5, command=lambda: displayMainWindow(frame), font=buttonFont)
     coinsLabel.place(relx=1, rely=0, anchor='ne', x=-5, y=0)
     hintsLabel.place(relx=1, rely=0, anchor='ne', x=-5, y=17)
-    guessLabel.pack(pady=(30, 0))
-    validLabel.pack()
-    greenLabel.pack()
-    yellowLabel.pack()
-    grayLabel.pack()
-    pressEnterLabel.pack()
-    backButton.pack()
-    quitButton.pack(in_=frame)
-    frame.pack()
+    titleLabel.pack(pady=(35, 30))
+    guessLabel.pack(pady=3)
+    validLabel.pack(pady=3)
+    useHintsLabel.pack(pady=3)
+    timerCountsDownLabel.pack(pady=3)
+    colorGuideLabel.pack(pady=(20, 10))
+    greenLabel.pack(pady=3)
+    yellowLabel.pack(pady=3)
+    grayLabel.pack(pady=3)
+    backButton.pack(pady=30)
+    frame.pack(expand=True, fill='both')
 
 wordList = []
 wordFrequency = nltk.FreqDist(brown.words())
@@ -412,10 +393,16 @@ for word in words.words():
     if 3 <= len(word) <= 7 and word.isalpha():
         if word.lower() in wordFrequency and wordFrequency[word.lower()] > 10:
             wordList.append(word.lower())
-
+titleFont = ('Georgia', 37, 'bold') 
+buttonFont = ('Georgia', 20)
+statusFont = ('Georgia', 10)
+informationFont = ('Georgia', 20)
 randomWord = None
 window = tk.Tk()
-window.geometry('500x500')
+window.minsize(800, 600)
+window.resizable(True, True)
+window.grid_rowconfigure(0, weight=1)
+window.grid_columnconfigure(0, weight=1)
 window.title('Wordle')
 frameForWindow = tk.Frame(master=window)
 coins = 1000
