@@ -49,11 +49,11 @@ def checkEntries(entries, frame):
         guessWindow = tk.Toplevel(window)
         guessWindow.title('You Guessed It')
         guessWindow.geometry("+%d+%d" % (window.winfo_rootx() + 50, window.winfo_rooty() + 50))
-        greatJobLabel = tk.Label(guessWindow, text='Great Job!')
-        guessWordLabel = tk.Label(guessWindow, text=f'You guessed the word in {currentGuess} tries')
-        wouldYouLikeToPlayAgainLabel = tk.Label(guessWindow, text='Would you like to play again?')
-        yesButton = tk.Button(guessWindow, text='Yes', command=lambda: [guessWindow.destroy(), displayDifficulties(frame)])
-        noButton = tk.Button(guessWindow, text='No', command=window.destroy)
+        greatJobLabel = tk.Label(guessWindow, text='Great Job!', font=informationFont)
+        guessWordLabel = tk.Label(guessWindow, text=f'You guessed the word in {currentGuess} tries', font=informationFont)
+        wouldYouLikeToPlayAgainLabel = tk.Label(guessWindow, text='Would you like to play again?', font=informationFont)
+        yesButton = tk.Button(guessWindow, text='Yes', command=lambda: [guessWindow.destroy(), displayDifficulties(frame)], font=buttonFont)
+        noButton = tk.Button(guessWindow, text='No', command=window.destroy, font=buttonFont)
         greatJobLabel.pack()
         guessWordLabel.pack()
         wouldYouLikeToPlayAgainLabel.pack()
@@ -67,12 +67,12 @@ def checkEntries(entries, frame):
         usedUpGuessesWindow = tk.Toplevel(window)
         usedUpGuessesWindow.title('You Used Up All Your Guesses')
         usedUpGuessesWindow.geometry("+%d+%d" % (window.winfo_rootx() + 50, window.winfo_rooty() + 50))
-        ohNoLabel = tk.Label(usedUpGuessesWindow, text='Oh No!')
-        usedUpGuessesLabel = tk.Label(usedUpGuessesWindow, text='You have used up all your guesses!')
-        wordLabel = tk.Label(usedUpGuessesWindow, text=f'The word was {randomWord}')
-        wouldYouLikeToPlayAgainLabel = tk.Label(usedUpGuessesWindow, text='Would you like to play again?')
-        yesButton = tk.Button(usedUpGuessesWindow, text='Yes', command=lambda: [usedUpGuessesWindow.destroy(), displayDifficulties(frame)])
-        noButton = tk.Button(usedUpGuessesWindow, text='No', command=window.destroy)
+        ohNoLabel = tk.Label(usedUpGuessesWindow, text='Oh No!', font=informationFont)
+        usedUpGuessesLabel = tk.Label(usedUpGuessesWindow, text='You have used up all your guesses!', font=informationFont)
+        wordLabel = tk.Label(usedUpGuessesWindow, text=f'The word was {randomWord}', font=informationFont)
+        wouldYouLikeToPlayAgainLabel = tk.Label(usedUpGuessesWindow, text='Would you like to play again?', font=informationFont)
+        yesButton = tk.Button(usedUpGuessesWindow, text='Yes', command=lambda: [usedUpGuessesWindow.destroy(), displayDifficulties(frame)], font=buttonFont)
+        noButton = tk.Button(usedUpGuessesWindow, text='No', command=window.destroy, font=buttonFont)
         ohNoLabel.pack()
         usedUpGuessesLabel.pack()
         wordLabel.pack()
@@ -84,18 +84,18 @@ def countDownTheTimer(labelForTimer, timer, frame):
     if timer > 0 and currentGuess < guesses:
         minutesRemaining = timer // 60
         secondsRemaining = timer % 60
-        labelForTimer.config(text=f'Time Left: {minutesRemaining:01d}:{secondsRemaining:02d}')
+        labelForTimer.config(text=f'Time Left: {minutesRemaining:01d}:{secondsRemaining:02d}', font=statusFont)
         timer -= 1
         window.after(1000, lambda: countDownTheTimer(labelForTimer, timer, frame))
     elif timer <= 0 and currentGuess < guesses:
         timeIsUpWindow = tk.Toplevel(window)
         timeIsUpWindow.title("Time's Up")
         timeIsUpWindow.geometry("+%d+%d" % (window.winfo_rootx() + 50, window.winfo_rooty() + 50))
-        timeIsUpLabel = tk.Label(timeIsUpWindow, text="Time's up!")
-        wordLabel = tk.Label(timeIsUpWindow, text=f'The word was {randomWord}')
-        playAgainLabel = tk.Label(timeIsUpWindow, text='Would you like to play again?')
-        yesButton = tk.Button(timeIsUpWindow, text='Yes', command=lambda: [timeIsUpWindow.destroy(), displayDifficulties(frame)])
-        noButton = tk.Button(timeIsUpWindow, text='No', command=window.destroy)
+        timeIsUpLabel = tk.Label(timeIsUpWindow, text="Time's up!", font=informationFont)
+        wordLabel = tk.Label(timeIsUpWindow, text=f'The word was {randomWord}', font=informationFont)
+        playAgainLabel = tk.Label(timeIsUpWindow, text='Would you like to play again?', font=informationFont)
+        yesButton = tk.Button(timeIsUpWindow, text='Yes', command=lambda: [timeIsUpWindow.destroy(), displayDifficulties(frame)], font=buttonFont)
+        noButton = tk.Button(timeIsUpWindow, text='No', command=window.destroy, font=buttonFont)
         timeIsUpLabel.pack()
         wordLabel.pack()
         playAgainLabel.pack()
@@ -109,7 +109,7 @@ def createTimer(frame, level):
         timer = 45
     elif level == 'Hard':
         timer = 30
-    timerLabel = tk.Label(frame, text=f'Time Left: {timer} seconds')
+    timerLabel = tk.Label(frame, text=f'Time Left: {timer} seconds', font=statusFont)
     timerLabel.place(relx=1, rely=0, anchor='ne', x=-5, y=34)
     countDownTheTimer(timerLabel, timer, frame)
 
@@ -119,9 +119,9 @@ def revealConsonant():
         if i in consonants:
             consonantWindow = tk.Toplevel(window)
             consonantWindow.geometry("+%d+%d" % (window.winfo_rootx() + 50, window.winfo_rooty() + 50))
-            consonantHintLabel = tk.Label(consonantWindow, text='Consonant Hint')
-            consonantLabel = tk.Label(consonantWindow, text=f'The consonant {i} is in the word')
-            okButton = tk.Button(consonantWindow, text='OK', width=5, command=consonantWindow.destroy)
+            consonantHintLabel = tk.Label(consonantWindow, text='Consonant Hint', font=informationFont)
+            consonantLabel = tk.Label(consonantWindow, text=f'The consonant {i} is in the word', font=informationFont)
+            okButton = tk.Button(consonantWindow, text='OK', width=5, command=consonantWindow.destroy, font=buttonFont)
             consonantHintLabel.pack()
             consonantLabel.pack()
             okButton.pack()
@@ -131,16 +131,16 @@ def revealVowel():
     vowels = 'aeiou'
     vowelWindow = tk.Toplevel(window)
     vowelWindow.geometry("+%d+%d" % (window.winfo_rootx() + 50, window.winfo_rooty() + 50))
-    vowelHintLabel = tk.Label(vowelWindow, text='Vowel Hint')
-    okButton = tk.Button(vowelWindow, text='OK', width=5, command=vowelWindow.destroy)
+    vowelHintLabel = tk.Label(vowelWindow, text='Vowel Hint', font=titleFont)
+    okButton = tk.Button(vowelWindow, text='OK', width=5, command=vowelWindow.destroy, font=buttonFont)
     for i in randomWord:
         if i in vowels:
-            vowelLabel = tk.Label(vowelWindow, text=f'The vowel {i} is in the word')
+            vowelLabel = tk.Label(vowelWindow, text=f'The vowel {i} is in the word', font=informationFont)
             vowelHintLabel.pack()
             vowelLabel.pack()
             okButton.pack()
             return
-    noVowelsLabel = tk.Label(vowelWindow, text='There are no vowels')
+    noVowelsLabel = tk.Label(vowelWindow, text='There are no vowels', font=informationFont)
     vowelHintLabel.pack()
     noVowelsLabel.pack()
     okButton.pack()
@@ -150,16 +150,16 @@ def revealLettersThatRepeat():
     global hintsRemaining
     repeatedLetterWindow = tk.Toplevel(window)
     repeatedLetterWindow.geometry("+%d+%d" % (window.winfo_rootx() + 50, window.winfo_rooty() + 50))
-    repeatedLetterHintLabel = tk.Label(repeatedLetterWindow, text='Repeated Letter Hint')
-    okButton = tk.Button(repeatedLetterWindow, text='OK', width=5, command=repeatedLetterWindow.destroy)
+    repeatedLetterHintLabel = tk.Label(repeatedLetterWindow, text='Repeated Letter Hint', font=titleFont)
+    okButton = tk.Button(repeatedLetterWindow, text='OK', width=5, command=repeatedLetterWindow.destroy, font=buttonFont)
     hintsRemaining -= 1
     for i in randomWord:
         if randomWord.count(i) > 1:
-            repeatedLetterLabel = tk.Label(repeatedLetterWindow, text=f'The letter {i} is repeated')
+            repeatedLetterLabel = tk.Label(repeatedLetterWindow, text=f'The letter {i} is repeated', font=informationFont)
             repeatedLetterHintLabel.pack()
             repeatedLetterLabel.pack()
         else:
-            noRepeatedLettersLabel = tk.Label(repeatedLetterWindow, text='There are no repeated letters')
+            noRepeatedLettersLabel = tk.Label(repeatedLetterWindow, text='There are no repeated letters', font=informationFont)
             repeatedLetterHintLabel.pack()
             noRepeatedLettersLabel.pack()
         okButton.pack()
@@ -176,17 +176,17 @@ def displayHints(difficulty_level):
         hintsRemaining = 2
     elif difficulty_level == 'Hard':
         hintsRemaining = 1
-    hintsRemainingLabel = tk.Label(hintWindow, text=f'Hints Remaining: {hintsRemaining}')
+    hintsRemainingLabel = tk.Label(hintWindow, text=f'Hints Remaining: {hintsRemaining}', font=informationFont)
     for i in range(1, len(randomHints) + 1):
         selectedHint = random.choice(randomHints)
         print(selectedHint)
-        hint = tk.Button(hintWindow, text=f'Hint {i}', width=5, command=selectedHint)
+        hint = tk.Button(hintWindow, text=f'Hint {i}', width=5, command=selectedHint, font=buttonFont)
         randomHints.remove(selectedHint)
         hintsRemainingLabel.pack()
         hint.pack()
 
 def displayHintButton(frame, difficultyLevel):
-    hintsButton = tk.Button(frame, text='Hints', width=6, command=lambda: displayHints(difficultyLevel))
+    hintsButton = tk.Button(frame, text='Hints', width=6, command=lambda: displayHints(difficultyLevel), font=buttonFont)
     hintsButton.place(relx=1, rely=0, anchor='ne', x=-5, y=51)
     
 def moveToNextEntry(event, entries, frame):
@@ -207,7 +207,7 @@ def displayEntries(frame):
     entryFrame = tk.Frame(frame)
     listOfEntries = []
     for i in range(len(randomWord)):
-        entry = tk.Entry(entryFrame, width=2, justify='center')
+        entry = tk.Entry(entryFrame, width=2, justify='center', font=informationFont)
         entry.pack(side='left', padx=5, pady=5)
         listOfEntries.append(entry)
     for i in range(len(listOfEntries)):
@@ -229,29 +229,13 @@ def operateGame(frame, level_of_difficulty):
     frame.pack_forget()
     for widget in frame.winfo_children():
         widget.destroy()
-    coinsLabel = tk.Label(frame, text=f'{coins} coins')
-    hintsLabel = tk.Label(frame, text=f'{hints} hints')
+    coinsLabel = tk.Label(frame, text=f'{coins} coins', font=statusFont)
+    hintsLabel = tk.Label(frame, text=f'{hints} hints', font=statusFont)
     coinsLabel.place(relx=1, rely=0, anchor='ne', x=-5, y=0)
     hintsLabel.place(relx=1, rely=0, anchor='ne', x=-5, y=17)
     createTimer(frame, level_of_difficulty)
     displayHintButton(frame, level_of_difficulty)
     displayEntries(frame)
-    
-def confirmDifficulty(difficulty):
-    frameForWindow.pack_forget()
-    for widget in frameForWindow.winfo_children():
-        widget.destroy()
-    coinsLabel = tk.Label(frameForWindow, text=f'{coins} coins')
-    hintsLabel = tk.Label(frameForWindow, text=f'{hints} hints')
-    difficultyLabel = tk.Label(frameForWindow, text=f'You have chosen to go {difficulty}. Proceed?')
-    proceedButton = tk.Button(frameForWindow, text='Proceed', width=6, command=lambda: operateGame(frameForWindow, difficulty))
-    backButton = tk.Button(frameForWindow, text='Back', width=5, command=lambda: displayDifficulties(frameForWindow))      
-    coinsLabel.place(relx=1, rely=0, anchor='ne', x=-5, y=0)
-    hintsLabel.place(relx=1, rely=0, anchor='ne', x=-5, y=17)
-    difficultyLabel.pack()
-    proceedButton.pack()
-    backButton.pack()
-    frameForWindow.pack(expand=True, fill='both')
     
 def getUserInput(frame):
     global userSelectedOption
@@ -263,19 +247,19 @@ def displayDifficulties(frame):
     frame.pack_forget()
     for widget in frame.winfo_children():
         widget.destroy()
-    coinsLabel = tk.Label(frame, text=f'{coins} coins')
-    hintsLabel = tk.Label(frame, text=f'{hints} hints')
+    coinsLabel = tk.Label(frame, text=f'{coins} coins', font=statusFont)
+    hintsLabel = tk.Label(frame, text=f'{hints} hints', font=statusFont)
     userSelectedOption = tk.StringVar(value=' ')
     global randomWord
     randomWord = random.choice(wordList)
     print(randomWord)
-    chooseDifficultyLabel = tk.Label(frame, text='Choose your difficulty level:')
-    easyOption = tk.Radiobutton(frame, text='Easy', variable=userSelectedOption, value='Easy', selectcolor="white")
-    mediumOption = tk.Radiobutton(frame, text='Medium', variable=userSelectedOption, value='Medium', selectcolor="white")
-    hardOption = tk.Radiobutton(frame, text='Hard', variable=userSelectedOption, value='Hard', selectcolor="white")
-    okButton = tk.Button(frame, text='OK', width=5, command=lambda: getUserInput(frame))
-    backButton = tk.Button(frame, text='Back', width=5, command=lambda: displayMainWindow(frame))          
-    quitButton = tk.Button(frame, text='Quit', width=5, command=window.destroy)
+    chooseDifficultyLabel = tk.Label(frame, text='Choose your difficulty level:', font=informationFont)
+    easyOption = tk.Radiobutton(frame, text='Easy', variable=userSelectedOption, value='Easy', selectcolor="white", font=informationFont)
+    mediumOption = tk.Radiobutton(frame, text='Medium', variable=userSelectedOption, value='Medium', selectcolor="white", font=informationFont)
+    hardOption = tk.Radiobutton(frame, text='Hard', variable=userSelectedOption, value='Hard', selectcolor="white", font=informationFont)
+    okButton = tk.Button(frame, text='OK', width=5, command=lambda: getUserInput(frame), font=buttonFont)
+    backButton = tk.Button(frame, text='Back', width=5, command=lambda: displayMainWindow(frame), font=buttonFont)          
+    quitButton = tk.Button(frame, text='Quit', width=5, command=window.destroy, font=buttonFont)
     coinsLabel.place(relx=1, rely=0, anchor='ne', x=-5, y=0)
     hintsLabel.place(relx=1, rely=0, anchor='ne', x=-5, y=17)
     chooseDifficultyLabel.pack()
